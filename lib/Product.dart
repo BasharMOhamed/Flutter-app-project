@@ -1,9 +1,18 @@
 class Product {
-  String imgURL;
-  String name;
-  double price;
-  String description;
- String category;
+   String ID;
+   String imgURL;
+   String name;
+   double price;
+   String description;
+   String category;
+   int quantityInStock;
 
-  Product(this.imgURL, this.name, this.price, this.description,this.category);
+  Product( {required this.ID, required this.imgURL,required this.name, required this.price,required this.description,required this.category,required this.quantityInStock});
+}
+
+class CartItem {
+  Product product;
+  int quantity;
+
+  CartItem({required this.product, required this.quantity});
 }
