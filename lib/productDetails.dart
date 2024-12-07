@@ -8,6 +8,7 @@ class Productdetails extends StatelessWidget {
   final double productPrice = 120.5;
   final String productDescription =
       "A nice mobile phone which can trn trn trn trn trn";
+  final String productCategory = "Electronics";
   const Productdetails({super.key});
 
   // Productdetails({
@@ -39,12 +40,42 @@ class Productdetails extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               // Product Name
-              Text(
-                productName,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      productName,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Category Label
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(255, 227, 231, 239),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          blurRadius: 6,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: Text(
+                      productCategory,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
               // Product Price
