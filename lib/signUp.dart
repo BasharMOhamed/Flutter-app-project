@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'login.dart'; // Import the LoginPage
@@ -14,6 +15,7 @@ class SignUpPageState extends State<SignUpPage> {
   bool isloading = false;
 
   final FirebaseAuth auth = FirebaseAuth.instance;
+  final DatabaseReference database = FirebaseDatabase.instance.ref();
 
   Future<void> signUp() async {
     if (formKey.currentState!.validate()) {
@@ -26,6 +28,16 @@ class SignUpPageState extends State<SignUpPage> {
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
+        User? user = userCredential.user;
+
+        if (user != null) {
+          await database.child('users').child(user.uid).set({
+            'email': user.email,
+            'id': user.uid,
+            'shoppingCart': [],
+            'isadmin': false
+          });
+        }
         setState(() {
           isloading = false;
         });
