@@ -24,6 +24,7 @@ class Product {
 
 class CartItem {
   int quantity;
+
   String productName;
   double price;
   String imgURL;
