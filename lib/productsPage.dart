@@ -8,7 +8,7 @@ import 'package:flutter_app/Product.dart';
 import 'package:flutter_app/productCard.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
+import 'package:firebase_database/firebase_database.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ProductsPage extends StatefulWidget {
@@ -22,66 +22,51 @@ class _ProductsPageState extends State<ProductsPage> {
   final TextEditingController _searchController = new TextEditingController();
   String selectedCategory = "All";
   String searchTextValue = "";
-  final List<String> categories = [
-    "All",
-    "Makeup",
-    "Clothes",
-    "Skincare",
-    "Tv",
-    "None"
-  ];
-  final List<Product> products = [
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 1',
-        100,
-        'loreLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'SkinCare'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 2',
-        200,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Makeup'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 3',
-        300,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Clothes'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 4',
-        400,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Tv'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 5',
-        500,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Tv'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 6',
-        600,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'SkinCare'),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
-        'Product 7',
-        700,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Clothes'),
-  ];
-  late List<Product> filteredProducts;
+  List<String> categories = [];
+  List<Product> products = [];
+  List<Product> filteredProducts = [];
+
+  //FireBase Connection
+  final DatabaseReference categoryRef =
+      FirebaseDatabase.instance.ref('Categories');
+  final DatabaseReference productRef =
+      FirebaseDatabase.instance.ref('Products');
+
+  void addProducts() async {
+    await categoryRef.set(categories);
+  }
+
+  void getCategories() async {
+    final snapshot = await categoryRef.get();
+    if (snapshot.exists) {
+      setState(() {
+        categories = (snapshot.value as List<dynamic>)
+            .map((item) => item.toString())
+            .toList();
+      });
+    }
+  }
+
+  void getProducts() async {
+    final snapshot = await productRef.get();
+    if (snapshot.exists) {
+      setState(() {
+        products = (snapshot.value as List<dynamic>)
+            .map((item) => Product.fromMap(Map<String, dynamic>.from(item)))
+            .toList();
+        filteredProducts = products;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    filteredProducts = products;
+    getCategories();
+    getProducts();
   }
 
+  //Filter Products
   void filterProductByCategory(String category) {
     category = category.toLowerCase().trim();
     if (category == "all") {
@@ -279,10 +264,13 @@ class _ProductsPageState extends State<ProductsPage> {
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
                     return Productcard(
-                        productName: filteredProducts[index].name,
-                        productPrice: filteredProducts[index].price,
-                        description: filteredProducts[index].description,
-                        imageURL: filteredProducts[index].imgURL);
+                      productName: filteredProducts[index].name,
+                      productPrice: filteredProducts[index].price,
+                      description: filteredProducts[index].description,
+                      imageURL: filteredProducts[index].imgURL,
+                      category: filteredProducts[index].category,
+                      quantityInStock: filteredProducts[index].quantityInStock,
+                    );
                   },
                 )),
               if (filteredProducts.isEmpty)
