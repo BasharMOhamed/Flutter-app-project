@@ -112,6 +112,14 @@ class _productListState extends State<productList> {
                                 const SizedBox(
                                   height: 15,
                                 ),
+                                Text(cartItems[index].price.toString()),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                                Text(cartItems[index].productName),
+                                const SizedBox(
+                                  height: 15,
+                                ),
                                 Text(cartItems[index].price.toString())
                               ],
                             ),
