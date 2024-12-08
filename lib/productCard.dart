@@ -7,6 +7,7 @@ class Productcard extends StatelessWidget {
   final String imageURL;
   final String category;
   final int quantityInStock;
+  final int productId;
 
   Productcard(
       {Key? key,
@@ -15,7 +16,8 @@ class Productcard extends StatelessWidget {
       required this.description,
       required this.imageURL,
       required this.category,
-      required this.quantityInStock})
+      required this.quantityInStock,
+      required this.productId})
       : super(key: key);
 
   @override
@@ -31,7 +33,8 @@ class Productcard extends StatelessWidget {
           //             description: description,
           //             imageURL: imageURL,
           //             category: category,
-          //             quantityInStock: quantityInStock)));
+          //             quantityInStock: quantityInStock,
+          //             productId: productId)));
         },
         child: Card(
             elevation: 4,

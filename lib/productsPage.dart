@@ -52,7 +52,12 @@ class _ProductsPageState extends State<ProductsPage> {
     if (snapshot.exists) {
       setState(() {
         products = (snapshot.value as List<dynamic>)
-            .map((item) => Product.fromMap(Map<String, dynamic>.from(item)))
+            .asMap()
+            .entries
+            .map((entry) => Product.fromMap(
+                  Map<String, dynamic>.from(entry.value),
+                  entry.key,
+                ))
             .toList();
         filteredProducts = products;
       });
@@ -264,13 +269,14 @@ class _ProductsPageState extends State<ProductsPage> {
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
                     return Productcard(
-                      productName: filteredProducts[index].name,
-                      productPrice: filteredProducts[index].price,
-                      description: filteredProducts[index].description,
-                      imageURL: filteredProducts[index].imgURL,
-                      category: filteredProducts[index].category,
-                      quantityInStock: filteredProducts[index].quantityInStock,
-                    );
+                        productName: filteredProducts[index].name,
+                        productPrice: filteredProducts[index].price,
+                        description: filteredProducts[index].description,
+                        imageURL: filteredProducts[index].imgURL,
+                        category: filteredProducts[index].category,
+                        quantityInStock:
+                            filteredProducts[index].quantityInStock,
+                        productId: filteredProducts[index].id);
                   },
                 )),
               if (filteredProducts.isEmpty)
