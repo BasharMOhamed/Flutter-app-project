@@ -1,44 +1,25 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../Product.dart';
+
 
 class productList extends StatefulWidget {
   @override
   _productListState createState() => _productListState();
 }
-
+  
 class _productListState extends State<productList> {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final FirebaseDatabase data =FirebaseDatabase.instance;
+  
   double totalPrice = 0;
-  List<Product> products = [
-    Product(
-        ID: '1',
-        imgURL: 'https://via.placeholder.com/150',
-        name: 'shaan',
-        price: 200.0,
-        description: 'body care product to use',
-        category: 'body care',
-        quantityInStock: 4),
-    Product(
-        ID: '2',
-        imgURL: 'https://via.placeholder.com/150',
-        name: 'eva',
-        price: 250.0,
-        description: 'body care product to use',
-        category: 'body care',
-        quantityInStock: 5),
-    Product(
-        ID: '3',
-        imgURL: 'https://via.placeholder.com/150',
-        name: 'body splash',
-        price: 300.0,
-        description: 'perfum product to use',
-        category: 'splashes',
-        quantityInStock: 8),
-  ];
+  
   List<CartItem> cartItems = [
     CartItem(
         product: Product(
-            ID: '3',
+            ID: 3,
             imgURL:
                 'https://f.nooncdn.com/p/pzsku/Z8D36526F7EFC45853967Z/45/_/1732101070/9ed6b40c-1220-4df8-a09c-1cce7350b770.jpg?format=avif&width=240',
             name: 'body splash',
@@ -46,7 +27,7 @@ class _productListState extends State<productList> {
             description: 'perfum product to use',
             category: 'splashes',
             quantityInStock: 8),
-        quantity: 2),
+            quantity: 2,id: 3),
   ];
 
   void addToCart(Product product) {
@@ -56,7 +37,7 @@ class _productListState extends State<productList> {
       if (index != -1) {
         cartItems[index].quantity++;
       } else {
-        cartItems.add(CartItem(product: product, quantity: 1));
+        cartItems.add(CartItem(product: product, quantity: 1,id: 3));
       }
     });
   }
@@ -87,6 +68,28 @@ class _productListState extends State<productList> {
   void initState() {
     updateTotal();
     super.initState();
+  }
+  void getCartProducts()async{
+         String? userId= auth.currentUser?.uid;
+    if(userId!=null){
+        DatabaseReference cartRef = data.ref('users/$userId/shoppingCart');
+        DataSnapshot snapshot = await cartRef.get();
+        if(snapshot.exists){
+           setState(() {
+        cartItems = (snapshot.value as List<dynamic>)
+            .asMap()
+            .entries
+            .map((entry) => CartItem.fromMap(
+                  Map<String, dynamic>.from(entry.value),id: 
+                  entry.key,
+                ))
+            .toList();
+             
+      });
+        
+    }
+    }
+
   }
 
   @override
@@ -164,3 +167,4 @@ class _productListState extends State<productList> {
     );
   }
 }
+
