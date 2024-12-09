@@ -3,6 +3,7 @@ class Product {
   String name;
   double price;
   String description;
+<<<<<<< HEAD
  String category;
 int quantityInStock;
 
@@ -19,4 +20,8 @@ int quantityInStock;
       map['quantityInStock']?.toInt() ?? 0,
     );
   }
+=======
+  String category;
+  Product(this.imgURL, this.name, this.price, this.description, this.category);
+>>>>>>> e243eb7 (Finishing the product Details page)
 }
