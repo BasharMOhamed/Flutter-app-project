@@ -22,7 +22,7 @@ class _ProductsPageState extends State<ProductsPage> {
   final TextEditingController _searchController = new TextEditingController();
   String selectedCategory = "All";
   String searchTextValue = "";
-  List<String> categories = [];
+  Map<String, String> categoryMap = {};
   List<Product> products = [];
   List<Product> filteredProducts = [];
 
@@ -37,13 +37,20 @@ class _ProductsPageState extends State<ProductsPage> {
   }
 
   void getCategories() async {
-    final snapshot = await categoryRef.get();
+    final snapshot = await catRef.get();
+
     if (snapshot.exists) {
-      setState(() {
-        categories = (snapshot.value as List<dynamic>)
-            .map((item) => item.toString())
-            .toList();
-      });
+      final data = snapshot.value as Map<dynamic, dynamic>?;
+
+      if (data != null) {
+        setState(() {
+          categoryMap = data.map(
+            (key, value) => MapEntry(value['title'].toString(), key.toString()),
+          );
+        });
+      }
+    } else {
+      print("No categories found.");
     }
   }
 
