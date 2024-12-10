@@ -3,7 +3,9 @@ class Product {
   String name;
   double price;
   String description;
- String category;
+  String category;
+  int quantityInStock;
 
-  Product(this.imgURL, this.name, this.price, this.description,this.category);
+
+  Product(this.imgURL, this.name, this.price, this.description,this.category,this.quantityInStock);
 }
