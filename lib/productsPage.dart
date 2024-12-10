@@ -20,7 +20,7 @@ class ProductsPage extends StatefulWidget {
 
 class _ProductsPageState extends State<ProductsPage> {
   final TextEditingController _searchController = new TextEditingController();
-  String selectedCategory = "All";
+  String selectedCategory = "Tv";
   String searchTextValue = "";
   Map<String, String> categoryMap = {};
   List<Product> products = [];
@@ -32,12 +32,12 @@ class _ProductsPageState extends State<ProductsPage> {
   final DatabaseReference productRef =
       FirebaseDatabase.instance.ref('Products');
 
-  void addProducts() async {
-    await categoryRef.set(categories);
-  }
+  // void addProducts() async {
+  //   await categoryRef.set(categories);
+  // }
 
   void getCategories() async {
-    final snapshot = await catRef.get();
+    final snapshot = await categoryRef.get();
 
     if (snapshot.exists) {
       final data = snapshot.value as Map<dynamic, dynamic>?;
@@ -57,15 +57,22 @@ class _ProductsPageState extends State<ProductsPage> {
   void getProducts() async {
     final snapshot = await productRef.get();
     if (snapshot.exists) {
+      final data = snapshot.value as Map<Object?, Object?>;
+
       setState(() {
-        products = (snapshot.value as List<dynamic>)
-            .asMap()
-            .entries
-            .map((entry) => Product.fromMap(
-                  Map<String, dynamic>.from(entry.value),
-                  entry.key,
-                ))
-            .toList();
+        products = data.entries.map((entry) {
+          final key = entry.key.toString();
+          final value = Map<String, dynamic>.from(entry.value as Map);
+          return Product(
+            value['imgURL'],
+            value['name'],
+            value['price'].toDouble(),
+            value['description'],
+            value['category'],
+            value['quantityInStock'],
+            key,
+          );
+        }).toList();
         filteredProducts = products;
       });
     }
@@ -86,8 +93,8 @@ class _ProductsPageState extends State<ProductsPage> {
       filteredProducts = products;
       return;
     }
-    bool found =
-        categories.any((Cat) => Cat.toLowerCase() == category.toLowerCase());
+    bool found = categoryMap.keys
+        .any((Cat) => Cat.toLowerCase() == category.toLowerCase());
     if (found) {
       setState(() {
         filteredProducts = products
@@ -238,7 +245,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   DropdownButton<String>(
                     value: selectedCategory,
                     hint: const Text('Select a Category'),
-                    items: categories.map((String category) {
+                    items: categoryMap.keys.map((String category) {
                       return DropdownMenuItem<String>(
                         value: category,
                         child: Text(category),

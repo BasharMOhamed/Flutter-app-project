@@ -7,7 +7,7 @@ class Productcard extends StatelessWidget {
   final String imageURL;
   final String category;
   final int quantityInStock;
-  final int productId;
+  final String productId;
 
   Productcard(
       {Key? key,
@@ -46,12 +46,14 @@ class Productcard extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
-                      child: Image.network(
-                        imageURL,
-                        height: 120,
-                        width: 80,
-                        fit: BoxFit.cover,
-                      ),
+                      child: imageURL.isNotEmpty
+                          ? Image.network(
+                              imageURL,
+                              height: 120,
+                              width: 80,
+                              fit: BoxFit.cover,
+                            )
+                          : const Icon(Icons.image, size: 80),
                     ),
                     const SizedBox(width: 16),
                     Expanded(

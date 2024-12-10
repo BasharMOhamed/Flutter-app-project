@@ -5,7 +5,7 @@ class Product {
   String description;
   String category;
   int quantityInStock;
-  int id;
+  String id;
 
   Product(this.imgURL, this.name, this.price, this.description, this.category,
       this.quantityInStock, this.id);
@@ -18,6 +18,6 @@ class Product {
         map['description'] ?? '',
         map['category'] ?? '',
         map['quantityInStock']?.toInt() ?? 0,
-        id ?? 0);
+        id ?? '');
   }
 }
