@@ -9,41 +9,22 @@ class CategoriesPage extends StatefulWidget {
 }
 
 class _CategoriesPageState extends State<CategoriesPage> {
-  late List<String> categories=[];
+  late List<String> categories = [];
   late int categoryCount;
-  final DatabaseReference catRef =FirebaseDatabase.instance.ref("Categories");
+  final DatabaseReference catRef = FirebaseDatabase.instance.ref("Categories");
   Map<String, String> categoryMap = {};
 
   @override
   void initState() {
     super.initState();
     fetchCategories();
-    
   }
 
-//   void getCategoryCount() async {
-
-//   // Fetch the data once
-//   DataSnapshot snapshot = await catRef.get();
-
-//   if (snapshot.exists) {
-//     // Count the number of children (categories)
-//     categoryCount = snapshot.children.length;
-//   }else{
-//     categoryCount = 0;
-//   }
-// }
-
-  void addCategory(String newCategory) async{
+  void addCategory(String newCategory) async {
     final DatabaseReference ref = FirebaseDatabase.instance.ref();
     String? uniqueKey = ref.push().key;
-    await catRef.child('$uniqueKey').set({
-      "title": newCategory
-    });
-    // getCategoryCount();
-    // await catRef.set({
-    //   "title": newCategory
-    // });
+    await catRef.child('$uniqueKey').set({"title": newCategory});
+
     setState(() {
       categories.add(newCategory);
       fetchCategories();
@@ -68,7 +49,7 @@ class _CategoriesPageState extends State<CategoriesPage> {
     }
   }
 
-  void deleteCategory(String category) async{
+  void deleteCategory(String category) async {
     final id = categoryMap[category];
     // final DatabaseReference categoryRef = FirebaseDatabase.instance.ref('Categories/$id');
     await catRef.child("$id").remove();
@@ -123,7 +104,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                       if (value == null || value.trim().isEmpty) {
                         return 'Please enter a valid category name';
                       }
-                      if (categories.any((Cat) => Cat.toLowerCase() == categoryName.toLowerCase())) {
+                      if (categories.any((Cat) =>
+                          Cat.toLowerCase() == categoryName.toLowerCase())) {
                         return 'Category already exists';
                       }
                       return null;

@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/add_product.dart';
 import 'package:flutter_app/Product.dart';
@@ -10,75 +11,64 @@ class ProductsManagePage extends StatefulWidget {
   _ProductManagePageState createState() => _ProductManagePageState();
 }
 
+List<Product> products = [];
+
 class _ProductManagePageState extends State<ProductsManagePage> {
-  final List<Product> products = [
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 1',
-        100,
-        'loreLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Skincare',
-        5),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 2',
-        200,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Makeup',
-        10),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 3',
-        300,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Clothes',
-        15),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 4',
-        400,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Tv',
-        20),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 5',
-        500,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Tv',
-        25),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 6',
-        600,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Skincare',
-        30),
-    Product(
-        'https://f.nooncdn.com/p/pzsku/Z1CE9C5578009988E50C4Z/45/_/1731503123/46d3dd93-efb2-46a5-8c22-370d3135d2b9.jpg?format=avif&width=240',
-        'Product 7',
-        700,
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-        'Clothes',
-        35),
-  ];
-
-  String selectedCategory = 'All'; 
-
-  List<String> categories = [
-    "All",
-    "Makeup",
-    "Clothes",
-    "Skincare",
-    "Tv",
-    "None"
-  ]; 
+  final DatabaseReference catRef = FirebaseDatabase.instance.ref("Categories");
+  final DatabaseReference productRef =
+      FirebaseDatabase.instance.ref('Products');
+  final newPostKey =
+      FirebaseDatabase.instance.ref().child('products').push().key;
+  Map<String, String> categoryMap = {};
+  String selectedCategory = 'Makeup';
   late List<Product> filteredProducts;
+
+  void fetchCategories() async {
+    final snapshot = await catRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.value as Map<dynamic, dynamic>?;
+
+      if (data != null) {
+        setState(() {
+          categoryMap = data.map(
+            (key, value) => MapEntry(value['title'].toString(), key.toString()),
+          );
+        });
+      }
+    } else {
+      print("No categories found.");
+    }
+  }
+
+  Future<void> fetchProducts() async {
+    final snapshot = await productRef.get();
+    final data = snapshot.value as Map<Object?, Object?>;
+
+    setState(() {
+      products = data.entries.map((entry) {
+        final key = entry.key.toString();
+        final value = Map<String, dynamic>.from(entry.value as Map);
+        return Product(
+          value['imgURL'],
+          value['name'],
+          value['price'].toDouble(),
+          value['description'],
+          value['category'],
+          value['quantityInStock'],
+          key,
+        );
+      }).toList();
+      filteredProducts = products;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
     filteredProducts = products;
+    fetchCategories();
+    fetchProducts();
   }
 
   void filterProductByCategory(String category) {
@@ -88,8 +78,9 @@ class _ProductManagePageState extends State<ProductsManagePage> {
       filteredProducts = products;
       return;
     }
-    bool found =
-        categories.any((Cat) => Cat.toLowerCase() == category.toLowerCase());
+    bool found = categoryMap.keys
+        .any((Cat) => Cat.toLowerCase() == category.toLowerCase());
+
     if (found) {
       setState(() {
         filteredProducts = products
@@ -97,44 +88,59 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                 product.category.toLowerCase() == category.toLowerCase())
             .toList();
       });
-     return;
-    } 
-    else {
+      return;
+    } else {
       selectedCategory = "None";
       filteredProducts = [];
     }
   }
 
   void rebuildFilteredProducts() {
-  setState(() {
-    if (selectedCategory == 'All') {
-      filteredProducts = List.from(products);
-    } else {
-      filteredProducts = products
-          .where((product) => product.category.toLowerCase() == selectedCategory.toLowerCase())
-          .toList();
-    }
-  });
-}
+    setState(() {
+      if (selectedCategory == 'All') {
+        filteredProducts = List.from(products);
+      } else {
+        filteredProducts = products
+            .where((product) =>
+                product.category.toLowerCase() ==
+                selectedCategory.toLowerCase())
+            .toList();
+      }
+    });
+  }
 
+  void addProduct(Product product) async {
+    await productRef.child('/$newPostKey').set({
+      'category': product.category,
+      'description': product.description,
+      'imgURL': product.imgURL,
+      'name': product.name,
+      'price': product.price,
+      'quantityInStock': product.quantityInStock
+    });
 
-
-  void addProduct(Product product) {
     setState(() {
       products.add(product);
     });
   }
 
-  void updateProduct(int index, Product updatedProduct) {
+  void updateProduct(int index, Product updatedProduct) async {
+    String id = products[index].id;
+    await productRef.child('/$id').update({
+      'category': updatedProduct.category,
+      'description': updatedProduct.description,
+      'imgURL': updatedProduct.imgURL,
+      'name': updatedProduct.name,
+      'price': updatedProduct.price,
+      'quantityInStock': updatedProduct.quantityInStock,
+    });
     setState(() {
       products[index] = updatedProduct;
     });
   }
 
-  void deleteProduct(int index) {
-    setState(() {
-      products.removeAt(index);
-    });
+  void deleteProduct(String id) async {
+    await productRef.child('/$id').remove();
   }
 
   @override
@@ -151,7 +157,8 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                 DropdownButton<String>(
                   value: selectedCategory,
                   hint: const Text('Select a Category'),
-                  items: categories
+                  items: categoryMap.keys
+                      .toList()
                       .map((String category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
@@ -176,82 +183,86 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                 final originalIndex = products.indexWhere((p) => p == product);
                 return GestureDetector(
                   onTap: () {
-                     if (originalIndex != -1) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ProductDetailPage(
-                          product: product,
-                          categories: categories,
-                          onUpdate: (updatedProduct) {
+                    if (originalIndex != -1) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProductDetailPage(
+                            product: product,
+                            categories: categoryMap.keys.toList(),
+                            onUpdate: (updatedProduct) {
                               setState(() {
-                                products[originalIndex] = updatedProduct; 
+                                products[originalIndex] = updatedProduct;
+                                updateProduct(originalIndex, updatedProduct);
                                 rebuildFilteredProducts();
                               });
                             },
-                          onDelete: () {
+                            onDelete: () {
                               setState(() {
-                                products.removeAt(originalIndex); 
+                                products.removeAt(originalIndex);
+                                deleteProduct(product.id);
                                 rebuildFilteredProducts();
                               });
-                            Navigator.pop(context);
-                          },
+                              Navigator.pop(context);
+                            },
+                          ),
                         ),
-                      ),
-                    );
+                      );
                     }
                   },
                   child: Card(
                     child: ListTile(
-                      leading: product.imgURL.isNotEmpty // Check if the URL is not empty
+                      leading: product.imgURL.isNotEmpty
                           ? Image.network(
                               product.imgURL,
                               height: 120,
                               width: 80,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) {
-                                // Handle invalid URLs by displaying a placeholder
                                 return Icon(Icons.image, size: 80);
                               },
                             )
-                          : Icon(Icons.image, size: 80), // Placeholder for empty URL
-                      title: Text(product.name), // Product name
+                          : const Icon(Icons.image, size: 80),
+                      title: Text(product.name),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('EGP ${product.price.toStringAsFixed(2)}', style: TextStyle(color: Colors.green)), 
-                          Text(product.description, maxLines: 2, overflow: TextOverflow.ellipsis), 
-                          Text('Category: ${product.category}', style: TextStyle(fontStyle: FontStyle.italic)), 
-                          Text('Stock: ${product.quantityInStock}', style: TextStyle(fontWeight: FontWeight.bold)),
+                          Text('EGP ${product.price.toStringAsFixed(2)}',
+                              style: TextStyle(color: Colors.green)),
+                          Text(product.description,
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
+                          Text('Category: ${product.category}',
+                              style: TextStyle(fontStyle: FontStyle.italic)),
+                          Text('Stock: ${product.quantityInStock}',
+                              style: TextStyle(fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
                   ),
-
                 );
               },
             ),
-          ), 
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final newProduct = await Navigator.push(
             context,
-           MaterialPageRoute(
+            MaterialPageRoute(
               builder: (context) => AddProductPage(
-                categories: categories, 
-                onAdd: (newProduct) {
-                  setState(() {
-                    addProduct(newProduct);
-                  });
-                },
-              ),
+                  categories: categoryMap.keys.toList(),
+                  onAdd: (newProduct) {
+                    setState(() {
+                      addProduct(newProduct);
+                    });
+                  },
+                  newId: newPostKey ?? ''),
             ),
           );
-          if (newProduct != null){
-             addProduct(newProduct);
-             rebuildFilteredProducts();
+          if (newProduct != null) {
+            addProduct(newProduct);
+            rebuildFilteredProducts();
           }
         },
         child: Icon(Icons.add),

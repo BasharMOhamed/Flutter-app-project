@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Product.dart'; 
+import 'package:flutter_app/Product.dart';
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -26,6 +26,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
   late String description;
   late String category;
   late int quantityInStock;
+  late String id;
 
   @override
   void initState() {
@@ -38,6 +39,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
         ? widget.product.category
         : widget.categories.first;
     quantityInStock = widget.product.quantityInStock;
+    id = widget.product.id;
   }
 
   @override
@@ -103,10 +105,10 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     return null;
                   },
                 ),
-               DropdownButtonFormField<String>(
+                DropdownButtonFormField<String>(
                   value: category,
                   items: widget.categories
-                      .where((cat) => cat != "All" && cat != "None") 
+                      .where((cat) => cat != "All" && cat != "None")
                       .map((cat) => DropdownMenuItem(
                             value: cat,
                             child: Text(cat),
@@ -142,20 +144,14 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                     return null;
                   },
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       widget.onUpdate(
-                        Product(
-                          imgUrl,
-                          name,
-                          price,
-                          description,
-                          category,
-                          quantityInStock,
-                        ),
+                        Product(imgUrl, name, price, description, category,
+                            quantityInStock, id),
                       );
                       Navigator.pop(context);
                     }
@@ -164,7 +160,7 @@ class _ProductDetailPageState extends State<ProductDetailPage> {
                 ),
                 TextButton(
                   onPressed: widget.onDelete,
-                  child: Text(
+                  child: const Text(
                     'Delete Product',
                     style: TextStyle(color: Colors.red),
                   ),

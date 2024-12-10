@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Product.dart'; 
+import 'package:flutter_app/Product.dart';
 
 class AddProductPage extends StatelessWidget {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final List<String> categories;
   final Function(Product) onAdd;
+  final String newId;
 
-  AddProductPage({required this.categories, required this.onAdd});
+  AddProductPage(
+      {required this.categories, required this.onAdd, required this.newId});
 
   late String name = '';
   late String description = '';
@@ -14,7 +16,7 @@ class AddProductPage extends StatelessWidget {
   late String imgURL = '';
   late String category = categories.firstWhere(
     (cat) => cat != 'All' && cat != 'None',
-    orElse: () => '', 
+    orElse: () => '',
   );
   late int quantityInStock = 0;
 
@@ -22,7 +24,7 @@ class AddProductPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Add Product')),
-      body: SingleChildScrollView( 
+      body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Form(
@@ -80,7 +82,9 @@ class AddProductPage extends StatelessWidget {
                 DropdownButtonFormField<String>(
                   value: category,
                   items: categories
-                      .where((cat) => cat != 'All' && cat != 'None') // Filter out "All" and "None"
+                      .where((cat) =>
+                          cat != 'All' &&
+                          cat != 'None') // Filter out "All" and "None"
                       .map((cat) => DropdownMenuItem(
                             value: cat,
                             child: Text(cat),
@@ -100,7 +104,8 @@ class AddProductPage extends StatelessWidget {
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Quantity in Stock'),
                   keyboardType: TextInputType.number,
-                  onSaved: (value) => quantityInStock = int.parse(value!.trim()),
+                  onSaved: (value) =>
+                      quantityInStock = int.parse(value!.trim()),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
                       return 'Please enter a valid quantity';
@@ -118,14 +123,8 @@ class AddProductPage extends StatelessWidget {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
                       onAdd(
-                        Product(
-                          imgURL,
-                          name,
-                          price,
-                          description,
-                          category,
-                          quantityInStock,
-                        ),
+                        Product(imgURL, name, price, description, category,
+                            quantityInStock, newId),
                       );
                       Navigator.pop(context);
                     }
