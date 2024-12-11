@@ -2,6 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/productDetails.dart';
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 33b21bb4d0502c9247db7447665b2c03618e1f89
 import 'package:flutter_app/firebase_options.dart';
 import 'signUp.dart';
 import 'login.dart';
