@@ -106,10 +106,6 @@ packages:
     source: hosted
     version: "5.13.5"
   firebase_core:
-
-    dependency: "direct main"
-    dependency: transitive
-
     dependency: "direct main"
     description:
       name: firebase_core
