@@ -17,7 +17,10 @@ class _ProductManagePageState extends State<ProductsManagePage> {
   final DatabaseReference catRef = FirebaseDatabase.instance.ref("Categories");
   final DatabaseReference productRef =
       FirebaseDatabase.instance.ref('Products');
-  final newPostKey =
+  final DatabaseReference totalSellRef =
+      FirebaseDatabase.instance.ref("totalSell");
+
+  final newProductKey =
       FirebaseDatabase.instance.ref().child('products').push().key;
   Map<String, String> categoryMap = {};
   String selectedCategory = 'Makeup';
@@ -110,7 +113,7 @@ class _ProductManagePageState extends State<ProductsManagePage> {
   }
 
   void addProduct(Product product) async {
-    await productRef.child('/$newPostKey').set({
+    await productRef.child('/$newProductKey').set({
       'category': product.category,
       'description': product.description,
       'imgURL': product.imgURL,
@@ -118,7 +121,9 @@ class _ProductManagePageState extends State<ProductsManagePage> {
       'price': product.price,
       'quantityInStock': product.quantityInStock
     });
-
+    await totalSellRef
+        .child('/$newProductKey')
+        .set({'totalSell': 0, 'productName': product.name});
     setState(() {
       products.add(product);
     });
@@ -257,7 +262,7 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                       addProduct(newProduct);
                     });
                   },
-                  newId: newPostKey ?? ''),
+                  newId: newProductKey ?? ''),
             ),
           );
           if (newProduct != null) {

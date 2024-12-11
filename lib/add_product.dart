@@ -122,6 +122,7 @@ class AddProductPage extends StatelessWidget {
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       _formKey.currentState!.save();
+
                       onAdd(
                         Product(imgURL, name, price, description, category,
                             quantityInStock, newId),
