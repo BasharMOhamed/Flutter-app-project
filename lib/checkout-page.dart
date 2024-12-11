@@ -11,8 +11,8 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedPaymentMethod = "Paypal";
-  String _phone = "+2"; // Default phone number
-  String _address = "Cairo"; // Default address
+  String _phone = "+2";
+  String _address = "Cairo";
   List<CartItem> cartItems = [];
   final double shippingFee = 5.0;
   final double taxRate = 0.05;
@@ -43,8 +43,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void getCartProducts() async {
-    //String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
+   // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+     String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
     if (userId != null) {
       DatabaseReference cartRef = FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
       DataSnapshot snapshot = await cartRef.get();
@@ -66,40 +66,82 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void saveOrderDetails() async {
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
-   // String userId="eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+
+    //String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+     String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
     DatabaseReference ordersRef = FirebaseDatabase.instance.ref('Orders/$userId');
-
-    // Generate a new order key
-    DatabaseReference newOrderRef = ordersRef.push();
-    String orderKey = newOrderRef.key ?? "";
-
-    // Prepare order data
     Map<String, dynamic> orderData = {
-      "orderKey": orderKey,
       "totalPrice": orderTotal,
       "feedback": Feedback,
       "rating": rating,
       //"address": _address,
       //"phone": _phone,
-      //"paymentMethod": _selectedPaymentMethod,
-      //"orderDate": DateTime.now().toIso8601String(),
-      "items": cartItems.map((item) =>
-      {
+      "items": cartItems.map((item) => {
         "productName": item.productName,
         "price": item.price,
         "quantity": item.quantity,
         "imageURL": item.imgURL,
       }).toList(),
     };
-
     try {
-      await newOrderRef.set(orderData);
+      await ordersRef.set(orderData);
       print("Order saved successfully");
     } catch (e) {
       print("Error saving order: $e");
     }
   }
+
+
+  void updateProductTotalSell(List<CartItem> items) async {
+
+    DatabaseReference totalSellRef = FirebaseDatabase.instance.ref('totalSell');
+
+    for (var item in items) {
+      try {
+        DataSnapshot snapshot = await totalSellRef.get();
+
+        if (snapshot.exists) {
+          bool productExists = false;
+
+          for (var child in snapshot.children) {
+            Map<String, dynamic> productData = Map<String, dynamic>.from(child.value as Map);
+
+            if (productData['productName'] == item.productName) {
+              productExists = true;
+              double currentTotalSell = productData['totalSell']?.toDouble() ?? 0.0;
+              double newTotalSell = currentTotalSell + item.quantity;
+
+              await totalSellRef.child(child.key!).update({
+                "totalSell": newTotalSell,
+              });
+
+              print("Updated totalSell for product ${item.productName}");
+              break;
+            }
+          }
+          if (!productExists) {
+            await totalSellRef.push().set({
+              "productName": item.productName,
+              "totalSell": item.quantity,
+            });
+            print("Added new product ${item.productName} to totalSell");
+          }
+        }
+        // else {
+        //   // If the `totalSell` node is empty, add the first entry
+        //   await totalSellRef.push().set({
+        //     "productName": item.productName,
+        //     "totalSell":  item.quantity,
+        //   });
+        //   print("Initialized totalSell with product ${item.productName}");
+        // }
+      } catch (e) {
+        print("Error updating totalSell for product ${item.productName}: $e");
+      }
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -223,8 +265,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 SizedBox(height: 32),
                 ElevatedButton(
                   onPressed: () {
-                    saveOrderDetails();
+                    //saveOrderDetails();
                     _showCheckoutDialog(context);
+
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),
@@ -366,6 +409,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     rating = ratingController.text;
                     Feedback = feedbackController.text;
                     saveOrderDetails();
+                    updateProductTotalSell(cartItems);
                     Navigator.of(context).pop();
                   },
                   child: Text(
