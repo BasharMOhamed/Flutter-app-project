@@ -3,24 +3,39 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'signUp.dart';
 import 'login.dart';
+import './Product.dart';
+import './shoppingCart/product-list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MainApp());
+  runApp(MyApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+// class MainApp extends StatelessWidget {
+//   const MainApp({super.key});
 
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Firebase Sign Up',
+//       home: LoginPage(),
+//     );
+//   }
+
+// }
+
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Firebase Sign Up',
-      home: LoginPage(),
+      title: 'Shopping Cart',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: productList(),
     );
   }
 }
