@@ -53,6 +53,7 @@ class _productListState extends State<productList> {
   void initState() {
     updateTotal();
     super.initState();
+    getCartProducts();
   }
 
   void getCartProducts() async {
