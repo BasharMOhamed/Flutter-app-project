@@ -182,6 +182,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.0"
+  flutter_sales_graph:
+    dependency: "direct main"
+    description:
+      name: flutter_sales_graph
+      sha256: dd1543ec8d6a43f1db28e12edfc1dc0aa777841571817726358b032d99439ff5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
