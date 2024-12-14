@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'signUp.dart';
 import 'login.dart';
+import 'navBar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +21,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Firebase Sign Up',
-      home: LoginPage(),
+      home: NavBar(isAdmin: false),
     );
   }
 }
