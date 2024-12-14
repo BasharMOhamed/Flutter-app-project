@@ -12,6 +12,7 @@ class SignUpPageState extends State<SignUpPage> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  TextEditingController _dateController = TextEditingController();
   bool isloading = false;
 
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -35,7 +36,8 @@ class SignUpPageState extends State<SignUpPage> {
             'email': user.email,
             'id': user.uid,
             'shoppingCart': [],
-            'isadmin': false
+            'isadmin': false,
+            'birthDay': _dateController.text.trim()
           });
         }
         setState(() {
@@ -70,6 +72,34 @@ class SignUpPageState extends State<SignUpPage> {
           SnackBar(content: Text(message)),
         );
       }
+    }
+  }
+
+  // For the date picker
+
+  // @override
+  // void dispose() {
+  //   _dateController.dispose();
+  //   super.dispose();
+  // }
+
+  Future<void> _selectDate(BuildContext context) async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(), // Default date
+      firstDate: DateTime(1900), // Earliest selectable date
+      lastDate: DateTime.now(), // Latest selectable date
+    );
+
+    if (pickedDate != null) {
+      // Format the date (optional)
+      String formattedDate =
+          "${pickedDate.year}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.day.toString().padLeft(2, '0')}";
+      print(formattedDate);
+
+      setState(() {
+        _dateController.text = formattedDate;
+      });
     }
   }
 
@@ -126,7 +156,25 @@ class SignUpPageState extends State<SignUpPage> {
                       }
                       return null;
                     },
+                  ), // the date input
+                  SizedBox(height: 20),
+                  TextFormField(
+                    controller: _dateController,
+                    readOnly: true, // Makes the field non-editable
+                    decoration: InputDecoration(
+                      labelText: "Date of Birth",
+                      suffixIcon: Icon(Icons.calendar_today),
+                      border: OutlineInputBorder(),
+                    ),
+                    onTap: () => _selectDate(context),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select your date of birth';
+                      }
+                      return null;
+                    },
                   ),
+                  ////////////////////////////////////////////////
                   SizedBox(height: 20),
                   isloading
                       ? Center(child: CircularProgressIndicator())
@@ -165,6 +213,9 @@ class SignUpPageState extends State<SignUpPage> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+
+    //date
+    _dateController.dispose();
     super.dispose();
   }
 }
