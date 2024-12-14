@@ -3,20 +3,21 @@ class Product {
   String name;
   double price;
   String description;
- String category;
-int quantityInStock;
+  String category;
+  int quantityInStock;
+  String id;
 
   Product(this.imgURL, this.name, this.price, this.description, this.category,
-      this.quantityInStock);
+      this.quantityInStock, this.id);
 
-  factory Product.fromMap(Map<String, dynamic> map) {
+  factory Product.fromMap(Map<String, dynamic> map, id) {
     return Product(
-      map['imgURL'].toString().trim() ?? '',
-      map['name'] ?? '',
-      map['price']?.toDouble() ?? 0.0,
-      map['description'] ?? '',
-      map['category'] ?? '',
-      map['quantityInStock']?.toInt() ?? 0,
-    );
+        map['imgURL'].toString().trim() ?? '',
+        map['name'] ?? '',
+        map['price']?.toDouble() ?? 0.0,
+        map['description'] ?? '',
+        map['category'] ?? '',
+        map['quantityInStock']?.toInt() ?? 0,
+        id ?? '');
   }
 }

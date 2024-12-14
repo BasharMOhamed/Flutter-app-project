@@ -1,5 +1,7 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_app/productsPage.dart';
 import 'signUp.dart';
 import 'forgetpassword.dart';
 //import 'Product.dart'; // Import Home Page
@@ -32,6 +34,24 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+        DatabaseReference userRef =
+            FirebaseDatabase.instance.ref('users/${userCredential.user?.uid}');
+
+        DataSnapshot snapshot = await userRef.get();
+
+        final userData = snapshot.value as Map<dynamic, dynamic>;
+
+        if (userData['isadmin'] == false) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ProductsPage()),
+          );
+        } else if (userData['isadmin'] == true) {
+          // Navigator.pushReplacement(
+          //   context,
+          //   MaterialPageRoute(builder: (context) => ProductsPage()),
+          // );
+        }
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login Successful!')),
@@ -128,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                   TextButton(
                     onPressed: () {
                       // Navigate to the Login page
-                      Navigator.push(
+                      Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                               builder: (context) => SignUpPage()));

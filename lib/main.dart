@@ -4,6 +4,8 @@ import 'package:flutter_app/firebase_options.dart';
 import 'signUp.dart';
 import 'login.dart';
 
+import 'package:flutter_app/productsPage.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
