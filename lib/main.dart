@@ -6,6 +6,7 @@ import 'package:flutter_app/adminChart.dart';
 import 'package:flutter_app/productDetails.dart';
 
 import 'package:flutter_app/firebase_options.dart';
+import 'package:flutter_app/shoppingCart/product-list.dart';
 import 'signUp.dart';
 import 'login.dart';
 import 'navBar.dart';
@@ -19,18 +20,16 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MainApp());
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Firebase Sign Up',
-      home: NavBar(isAdmin: false),
+      home: LoginPage(),
     );
   }
 }
