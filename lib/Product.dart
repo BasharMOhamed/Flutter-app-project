@@ -18,6 +18,6 @@ class Product {
         map['description'] ?? '',
         map['category'] ?? '',
         map['quantityInStock']?.toInt() ?? 0,
-        id ?? '');
+        id);
   }
 }

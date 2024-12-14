@@ -10,6 +10,8 @@ import 'signUp.dart';
 import 'login.dart';
 
 import 'package:flutter_app/productsPage.dart';
+import 'package:flutter_app/product_management.dart';
+import 'package:flutter_app/categories.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
