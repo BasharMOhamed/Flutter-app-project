@@ -8,6 +8,7 @@ import 'package:flutter_app/productDetails.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'signUp.dart';
 import 'login.dart';
+import 'navBar.dart';
 
 import 'package:flutter_app/productsPage.dart';
 import 'package:flutter_app/product_management.dart';
@@ -29,7 +30,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Firebase Sign Up',
-      home: LoginPage(),
+      home: NavBar(isAdmin: false),
     );
   }
 }
