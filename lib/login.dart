@@ -1,10 +1,10 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_app/adminChart.dart';
 import 'package:flutter_app/productsPage.dart';
 import 'signUp.dart';
 import 'forgetpassword.dart';
-//import 'Product.dart'; // Import Home Page
 
 class LoginPage extends StatefulWidget {
   @override
@@ -47,10 +47,10 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => ProductsPage()),
           );
         } else if (userData['isadmin'] == true) {
-          // Navigator.pushReplacement(
-          //   context,
-          //   MaterialPageRoute(builder: (context) => ProductsPage()),
-          // );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AdminChart()),
+          );
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
