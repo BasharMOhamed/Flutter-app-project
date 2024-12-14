@@ -30,7 +30,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   double get subtotal {
-    return cartItems.fold(0.0, (sum, item) => sum + (item.price * item.quantity));
+    return cartItems.fold(
+        0.0, (sum, item) => sum + (item.price * item.quantity));
   }
 
   double get tax {
@@ -43,10 +44,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void getCartProducts() async {
-   // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
-     String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
+    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
     if (userId != null) {
-      DatabaseReference cartRef = FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
+      DatabaseReference cartRef =
+          FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
       DataSnapshot snapshot = await cartRef.get();
       final data = snapshot.value as Map<Object?, Object?>;
       setState(() {
@@ -66,22 +68,24 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void saveOrderDetails() async {
-
-    //String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
-     String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
-    DatabaseReference ordersRef = FirebaseDatabase.instance.ref('Orders/$userId');
+    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+    String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
+    DatabaseReference ordersRef =
+        FirebaseDatabase.instance.ref('Orders/$userId');
     Map<String, dynamic> orderData = {
       "totalPrice": orderTotal,
       "feedback": Feedback,
       "rating": rating,
       //"address": _address,
       //"phone": _phone,
-      "items": cartItems.map((item) => {
-        "productName": item.productName,
-        "price": item.price,
-        "quantity": item.quantity,
-        "imageURL": item.imgURL,
-      }).toList(),
+      "items": cartItems
+          .map((item) => {
+                "productName": item.productName,
+                "price": item.price,
+                "quantity": item.quantity,
+                "imageURL": item.imgURL,
+              })
+          .toList(),
     };
     try {
       await ordersRef.set(orderData);
@@ -91,9 +95,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
-
   void updateProductTotalSell(List<CartItem> items) async {
-
     DatabaseReference totalSellRef = FirebaseDatabase.instance.ref('totalSell');
 
     for (var item in items) {
@@ -104,11 +106,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
           bool productExists = false;
 
           for (var child in snapshot.children) {
-            Map<String, dynamic> productData = Map<String, dynamic>.from(child.value as Map);
+            Map<String, dynamic> productData =
+                Map<String, dynamic>.from(child.value as Map);
 
             if (productData['productName'] == item.productName) {
               productExists = true;
-              double currentTotalSell = productData['totalSell']?.toDouble() ?? 0.0;
+              double currentTotalSell =
+                  productData['totalSell']?.toDouble() ?? 0.0;
               double newTotalSell = currentTotalSell + item.quantity;
 
               await totalSellRef.child(child.key!).update({
@@ -140,8 +144,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       }
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -186,8 +188,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 children: [
                                   Text(cartItems[index].productName),
                                   const SizedBox(height: 15),
-                                  Text("\$${cartItems[index].price.toString()}"),
-                                  Text("x${cartItems[index].quantity.toString()}"),
+                                  Text(
+                                      "\$${cartItems[index].price.toString()}"),
+                                  Text(
+                                      "x${cartItems[index].quantity.toString()}"),
                                 ],
                               ),
                             ],
@@ -267,7 +271,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   onPressed: () {
                     //saveOrderDetails();
                     _showCheckoutDialog(context);
-
                   },
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),
@@ -395,6 +398,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     fillColor: Colors.white,
                   ),
                   keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    // Enforce min and max values
+                    if (value.isNotEmpty) {
+                      int? number = int.tryParse(value);
+                      if (number != null) {
+                        if (number < 1) {
+                          ratingController.text = '1';
+                          ratingController.selection =
+                              TextSelection.fromPosition(
+                            TextPosition(offset: ratingController.text.length),
+                          );
+                        } else if (number > 5) {
+                          ratingController.text = '5';
+                          ratingController.selection =
+                              TextSelection.fromPosition(
+                            TextPosition(offset: ratingController.text.length),
+                          );
+                        }
+                      }
+                    }
+                  },
                 ),
                 SizedBox(height: 16),
                 ElevatedButton(
@@ -444,10 +468,15 @@ class PricingSection extends StatelessWidget {
     return Column(
       children: [
         PriceRow(label: "Subtotal", value: "\$${subtotal.toStringAsFixed(2)}"),
-        PriceRow(label: "Shipping Fee", value: "\$${shippingFee.toStringAsFixed(2)}"),
+        PriceRow(
+            label: "Shipping Fee",
+            value: "\$${shippingFee.toStringAsFixed(2)}"),
         PriceRow(label: "Tax Fee", value: "\$${tax.toStringAsFixed(2)}"),
         Divider(),
-        PriceRow(label: "Order Total", value: "\$${total.toStringAsFixed(2)}", bold: true),
+        PriceRow(
+            label: "Order Total",
+            value: "\$${total.toStringAsFixed(2)}",
+            bold: true),
       ],
     );
   }
