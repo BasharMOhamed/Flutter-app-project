@@ -17,26 +17,79 @@ class _productListState extends State<productList> {
 
   List<CartItem> cartItems = [];
 
-  void addToCart(String id) {
-    setState(() {
-      final index = cartItems.indexWhere((item) => item.id == id);
-      // if (index != -1) {
-      cartItems[index].quantity++;
-      // } else {
-      //   cartItems.add(CartItem(product, 1, 'hbjhb'));
-      // }
-    });
+  //
+  Future<int?> getQuantityInStock(String id) async {
+    try {
+      // Create a reference to the specific product
+      DatabaseReference prodRef = FirebaseDatabase.instance.ref('Products/$id');
+
+      // Fetch the data snapshot
+      DataSnapshot snapshot = await prodRef.get();
+
+      if (snapshot.exists) {
+        // Access the 'quantityInStock' field
+        final data = snapshot.value as Map<dynamic, dynamic>;
+        int quantity = data['quantityInStock'] ?? 0;
+        print('Quantity in Stock: $quantity');
+        return quantity;
+      } else {
+        print('No data available for this product.');
+      }
+    } catch (e) {
+      print('Error retrieving data: $e');
+    }
+    return null;
   }
 
-  void removeFromCart(String id) {
+  void addToCart(String id) async {
+    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+    String? userId = auth.currentUser?.uid;
+    DatabaseReference ref =
+        FirebaseDatabase.instance.ref('users/$userId/shoppingCart/$id');
+    int? quantityInStock = await getQuantityInStock(id);
+    DatabaseReference prodRef = FirebaseDatabase.instance.ref('Products/$id');
+
+    if (quantityInStock != null && quantityInStock > 0) {
+      setState(() {
+        final index = cartItems.indexWhere((item) => item.id == id);
+        if (index != -1) {
+          cartItems[index].quantity++;
+        }
+      });
+      updateTotal();
+      await ref.update(
+          {'quantity': cartItems.firstWhere((item) => item.id == id).quantity});
+      await prodRef.update({'quantityInStock': quantityInStock - 1});
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Out Of Stock")),
+      );
+    }
+  }
+
+  void removeFromCart(String id) async {
+    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
+    String? userId = auth.currentUser?.uid;
+    DatabaseReference ref =
+        FirebaseDatabase.instance.ref('users/$userId/shoppingCart/$id');
+    DatabaseReference prodRef = FirebaseDatabase.instance.ref('Products/$id');
+    int? quantityInStock = await getQuantityInStock(id);
+
     setState(() {
       final index = cartItems.indexWhere((item) => item.id == id);
-      if (cartItems[index].quantity == 1) {
-        cartItems.removeAt(index);
-      } else {
-        cartItems[index].quantity--;
+      if (index != -1) {
+        if (cartItems[index].quantity == 1) {
+          cartItems.removeAt(index);
+          ref.remove();
+        } else {
+          cartItems[index].quantity--;
+          ref.update({'quantity': cartItems[index].quantity});
+        }
       }
     });
+
+    await prodRef.update({'quantityInStock': quantityInStock! + 1});
+    updateTotal();
   }
 
   void updateTotal() {
@@ -51,12 +104,12 @@ class _productListState extends State<productList> {
 
   @override
   void initState() {
-    updateTotal();
     super.initState();
     getCartProducts();
   }
 
   void getCartProducts() async {
+    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
     String? userId = auth.currentUser?.uid;
     if (userId != null) {
       DatabaseReference cartRef =
@@ -69,7 +122,7 @@ class _productListState extends State<productList> {
           final key = entry.key.toString();
           final value = Map<String, dynamic>.from(entry.value as Map);
           return CartItem(
-            value['imgURL'],
+            value['imageURL'],
             value['price'].toDouble(),
             value['productName'],
             value['quantity'],
@@ -78,6 +131,7 @@ class _productListState extends State<productList> {
         }).toList();
       });
     }
+    updateTotal();
   }
 
   @override
@@ -103,9 +157,9 @@ class _productListState extends State<productList> {
                                   cartItems[index].imgURL,
                                   height: 120,
                                   width: 80,
-                                  fit: BoxFit.cover,
+                                  fit: BoxFit.fill,
                                 )),
-                            const SizedBox(width: 15),
+                            const SizedBox(width: 10),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -113,19 +167,11 @@ class _productListState extends State<productList> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                Text(cartItems[index].price.toString()),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                Text(cartItems[index].productName),
-                                const SizedBox(
-                                  height: 15,
-                                ),
-                                Text(cartItems[index].price.toString())
+                                Text('\$${cartItems[index].price.toString()}'),
                               ],
                             ),
                             const SizedBox(
-                              width: 30,
+                              width: 20,
                             ),
                             Row(
                               children: [
@@ -133,16 +179,12 @@ class _productListState extends State<productList> {
                                     icon: Icon(Icons.add),
                                     onPressed: () => {
                                           addToCart(cartItems[index].id),
-                                          updateTotal()
                                         }),
-                                const SizedBox(width: 10),
                                 Text(cartItems[index].quantity.toString()),
-                                const SizedBox(width: 10),
                                 IconButton(
                                     icon: Icon(Icons.remove),
                                     onPressed: () => {
                                           removeFromCart(cartItems[index].id),
-                                          updateTotal()
                                         }),
                               ],
                             )
