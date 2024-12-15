@@ -77,14 +77,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void saveOrderDetails() async {
-    // String userId = "eBKvUeeoFYUIbaXinkBcTVHSnPo2";
-    String userId = FirebaseAuth.instance.currentUser?.uid ?? "anonymous";
     DatabaseReference ordersRef =
-        FirebaseDatabase.instance.ref('Orders/$userId');
+        FirebaseDatabase.instance.ref('Orders');
+
+    //String ratingText = ratingController.text;
+    //double? rating = double.tryParse(ratingText);
+    // if (rating == null) {
+    //   rating = 0.0;  // Default rating if the input is not valid
+    // }
+    String newOrderKey = ordersRef.push().key ?? '';
     Map<String, dynamic> orderData = {
       "totalPrice": orderTotal,
       "feedback": Feedback,
-      "rating": rating,
+      "rating": double.tryParse(rating),
       //"address": _address,
       //"phone": _phone,
       "items": cartItems
@@ -97,7 +102,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           .toList(),
     };
     try {
-      await ordersRef.set(orderData);
+      await ordersRef.child(newOrderKey).set(orderData);
       print("Order saved successfully");
     } catch (e) {
       print("Error saving order: $e");
@@ -189,6 +194,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   height: 120,
                                   width: 80,
                                   fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.image, size: 80);
+                              },
                                 ),
                               ),
                               const SizedBox(width: 15),
@@ -198,7 +206,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   Text(cartItems[index].productName),
                                   const SizedBox(height: 15),
                                   Text(
-                                      "\$${cartItems[index].price.toString()}"),
+                                      "EGP${cartItems[index].price.toString()}"),
                                   Text(
                                       "x${cartItems[index].quantity.toString()}"),
                                 ],
@@ -230,9 +238,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 Divider(height: 32, thickness: 1),
                 ListTile(
-                  title: Text("Shipping Address"),
+                  title: Text("Personal Information"),
                   trailing: TextButton(
-                    child: Text("Change"),
+                    child: Text("Edit"),
                     onPressed: () async {
                       final newAddressData = await Navigator.push(
                         context,
@@ -284,7 +292,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   style: ElevatedButton.styleFrom(
                     minimumSize: Size(double.infinity, 50),
                   ),
-                  child: Text("Checkout \$${orderTotal.toStringAsFixed(2)}"),
+                  child: Text("Checkout EGP${orderTotal.toStringAsFixed(2)}"),
                 ),
               ],
             ),
@@ -345,6 +353,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void _showCheckoutDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>(); // Form key for validation
+    final TextEditingController feedbackController = TextEditingController();
+    final TextEditingController ratingController = TextEditingController();
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -363,100 +374,126 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.green,
-                  size: 60,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  "Payment Successful!",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+            child: Form(  
+            key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 60,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: feedbackController,
-                  decoration: InputDecoration(
-                    labelText: "Feedback",
-                    hintText: "Enter your feedback",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: 16),
+                  Text(
+                    "Payment Successful!",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                SizedBox(height: 16),
-                TextField(
-                  controller: ratingController,
-                  decoration: InputDecoration(
-                    labelText: "Rating From (1-5)",
-                    hintText: "Enter a number",
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: feedbackController,
+                    decoration: InputDecoration(
+                      labelText: "Feedback",
+                      hintText: "Enter your feedback",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
                     ),
-                    filled: true,
-                    fillColor: Colors.white,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a Feedback';
+                      }
+                      return null;
+                    },
                   ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    // Enforce min and max values
-                    if (value.isNotEmpty) {
-                      int? number = int.tryParse(value);
-                      if (number != null) {
-                        if (number < 1) {
-                          ratingController.text = '1';
-                          ratingController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(offset: ratingController.text.length),
-                          );
-                        } else if (number > 5) {
-                          ratingController.text = '5';
-                          ratingController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(offset: ratingController.text.length),
-                          );
+
+                  SizedBox(height: 16),
+                  TextFormField(
+                    controller: ratingController,
+                    decoration: InputDecoration(
+                      labelText: "Rating From (1-5)",
+                      hintText: "Enter a number",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return 'Please enter a Rating';
+                      }
+                      final rating = double.tryParse(value.trim());
+                      if (rating == null || rating < 1 || rating > 5) {
+                      return 'Please enter number between 1 and 5';
+                    }
+                      return null;
+                    },
+                    
+                    onChanged: (value) {
+                      // Enforce min and max values
+                      if (value.isNotEmpty) {
+                        final number = int.tryParse(value);
+                        if (number != null) {
+                          if (number < 1) {
+                            ratingController.text = '1';
+                            // ratingController.selection =
+                            //     TextSelection.fromPosition(
+                            //   TextPosition(offset: ratingController.text.length),
+                            // );
+                          } else if (number > 5) {
+                            ratingController.text = '5';
+                            // ratingController.selection =
+                            //     TextSelection.fromPosition(
+                            //   TextPosition(offset: ratingController.text.length),
+                            // );
+                          }
+                          ratingController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: ratingController.text.length),
+                        );
                         }
                       }
-                    }
-                  },
-                ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
                     ),
-                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        rating = ratingController.text;
+                        Feedback = feedbackController.text;
+                        saveOrderDetails();
+                        updateProductTotalSell(cartItems);
+                        removeShoppingCart();
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavBar(isAdmin: false)),
+                        );
+                      }
+                    },
+                    child: Text(
+                      "Send",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                   ),
-                  onPressed: () {
-                    rating = ratingController.text;
-                    Feedback = feedbackController.text;
-                    saveOrderDetails();
-                    updateProductTotalSell(cartItems);
-                    removeShoppingCart();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NavBar(isAdmin: false)),
-                    );
-                  },
-                  child: Text(
-                    "Send",
-                    style: TextStyle(fontSize: 16, color: Colors.white),
-                  ),
-                ),
-              ],
-            ),
+                ],
+              ),
+          )
           ),
         );
       },
@@ -481,15 +518,15 @@ class PricingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        PriceRow(label: "Subtotal", value: "\$${subtotal.toStringAsFixed(2)}"),
+        PriceRow(label: "Subtotal", value: "EGP${subtotal.toStringAsFixed(2)}"),
         PriceRow(
             label: "Shipping Fee",
-            value: "\$${shippingFee.toStringAsFixed(2)}"),
-        PriceRow(label: "Tax Fee", value: "\$${tax.toStringAsFixed(2)}"),
+            value: "EGP${shippingFee.toStringAsFixed(2)}"),
+        PriceRow(label: "Tax Fee", value: "EGP${tax.toStringAsFixed(2)}"),
         Divider(),
         PriceRow(
             label: "Order Total",
-            value: "\$${total.toStringAsFixed(2)}",
+            value: "EGP${total.toStringAsFixed(2)}",
             bold: true),
       ],
     );

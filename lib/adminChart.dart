@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_sales_graph/flutter_sales_graph.dart';
 
 class AdminChart extends StatefulWidget {
+  const AdminChart({super.key});
+
   // const AdminChart({super.key});
   @override
   _AdminChartState createState() => _AdminChartState();

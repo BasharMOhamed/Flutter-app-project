@@ -19,8 +19,8 @@ class ProductsPage extends StatefulWidget {
 }
 
 class _ProductsPageState extends State<ProductsPage> {
-  final TextEditingController _searchController = new TextEditingController();
-  String selectedCategory = "Tv";
+  final TextEditingController _searchController = TextEditingController();
+  String selectedCategory = "All";
   String searchTextValue = "";
   Map<String, String> categoryMap = {};
   List<Product> products = [];
@@ -167,7 +167,7 @@ class _ProductsPageState extends State<ProductsPage> {
           filterProductByName(searchVoiceValue);
         });
       },
-      listenFor: Duration(minutes: 1),
+      listenFor: const Duration(minutes: 1),
       cancelOnError: true,
     );
   }
@@ -200,7 +200,7 @@ class _ProductsPageState extends State<ProductsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Products'),
+          title: const Text('Products'),
         ),
         body: Stack(children: [
           Column(
@@ -230,7 +230,7 @@ class _ProductsPageState extends State<ProductsPage> {
                         onPressed: () {
                           filterProductByName(searchTextValue);
                         },
-                        child: Text("Search"))),
+                        child: const Text("Search"))),
               ]),
               const SizedBox(
                 height: 5,
@@ -238,12 +238,12 @@ class _ProductsPageState extends State<ProductsPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Category:"),
+                  const Text("Category:"),
                   const SizedBox(
                     width: 15,
                   ),
                   DropdownButton<String>(
-                    value: selectedCategory,
+                    value: categoryMap.keys.contains(selectedCategory) ? selectedCategory : null,
                     hint: const Text('Select a Category'),
                     items: categoryMap.keys.map((String category) {
                       return DropdownMenuItem<String>(
@@ -253,7 +253,7 @@ class _ProductsPageState extends State<ProductsPage> {
                     }).toList(),
                     onChanged: (String? category) {
                       setState(() {
-                        selectedCategory = category.toString();
+                        selectedCategory = category ?? "";
                         filterProductByCategory(selectedCategory);
                       });
                     },
@@ -264,7 +264,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           onPressed: () async {
                             startSpeechRecognition();
                           },
-                          icon: Icon(Icons.mic_rounded))),
+                          icon: const Icon(Icons.mic_rounded))),
                   const SizedBox(
                     width: 1,
                   ),
@@ -274,7 +274,7 @@ class _ProductsPageState extends State<ProductsPage> {
                           onPressed: () {
                             scanCode();
                           },
-                          icon: Icon(Icons.barcode_reader)))
+                          icon: const Icon(Icons.barcode_reader)))
                 ],
               ),
               if (filteredProducts.isNotEmpty)
@@ -294,7 +294,7 @@ class _ProductsPageState extends State<ProductsPage> {
                   },
                 )),
               if (filteredProducts.isEmpty)
-                Center(
+                const Center(
                   child: Text("No Products Found!",
                       style: TextStyle(fontSize: 18, color: Colors.grey)),
                 )
@@ -316,11 +316,11 @@ class _ProductsPageState extends State<ProductsPage> {
               child: Container(
                 width: 100,
                 height: 100,
-                child: Icon(Icons.mic, size: 80, color: Colors.white),
                 decoration: BoxDecoration(
                   color: Colors.blue, // Background color
                   borderRadius: BorderRadius.circular(40), // Rounded corners
                 ),
+                child: Icon(Icons.mic, size: 80, color: Colors.white),
               ),
             ),
           if (isListining)
@@ -328,7 +328,7 @@ class _ProductsPageState extends State<ProductsPage> {
                 top: 40,
                 right: 20,
                 child: IconButton(
-                  icon: Icon(Icons.close, size: 40, color: Colors.white),
+                  icon: const Icon(Icons.close, size: 40, color: Colors.white),
                   onPressed: () {
                     stopSpeechRecognition();
                   },

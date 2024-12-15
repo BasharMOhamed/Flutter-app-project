@@ -159,6 +159,9 @@ class _productListState extends State<productList> {
                                   height: 120,
                                   width: 80,
                                   fit: BoxFit.fill,
+                                  errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.image, size: 80);
+                              },
                                 )),
                             const SizedBox(width: 20),
                             Column(
@@ -170,7 +173,7 @@ class _productListState extends State<productList> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                Text('\$${cartItems[index].price.toString()}',
+                                Text('EGP${cartItems[index].price.toString()}',
                                     style: TextStyle(color: Colors.green)),
                               ],
                             ),
@@ -206,7 +209,7 @@ class _productListState extends State<productList> {
                 );
               },
               child: Text(
-                  'Proceed to Checkout - \$${totalPrice.toStringAsFixed(2)}'),
+                  'Proceed to Checkout - EGP${totalPrice.toStringAsFixed(2)}'),
             ),
           ),
         ],

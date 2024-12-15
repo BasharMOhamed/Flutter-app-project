@@ -42,6 +42,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
           categoryMap = data.map(
             (key, value) => MapEntry(value['title'].toString(), key.toString()),
           );
+           // Exclude "All" or any unwanted keys from the categoryMap
+          categoryMap.removeWhere((key, value) => key.toLowerCase() == 'all');
         });
       }
     } else {

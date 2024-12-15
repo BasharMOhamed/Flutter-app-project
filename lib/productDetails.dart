@@ -92,6 +92,9 @@ class _ProductdetailsState extends State<Productdetails> {
                   widget.imageURL,
                   height: 250,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.image, size: 80);
+                              },
                 ),
               ),
               const SizedBox(height: 16),
@@ -136,7 +139,7 @@ class _ProductdetailsState extends State<Productdetails> {
               const SizedBox(height: 8),
               // Product Price
               Text(
-                '\$${widget.productPrice.toStringAsFixed(2)}',
+                'EGP${widget.productPrice.toStringAsFixed(2)}',
                 style: const TextStyle(
                   fontSize: 20,
                   color: Colors.green,

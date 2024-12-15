@@ -23,7 +23,7 @@ class _ProductManagePageState extends State<ProductsManagePage> {
   final newProductKey =
       FirebaseDatabase.instance.ref().child('products').push().key;
   Map<String, String> categoryMap = {};
-  String selectedCategory = 'Makeup';
+  String selectedCategory = 'All';
   late List<Product> filteredProducts;
 
   void fetchCategories() async {
@@ -37,10 +37,16 @@ class _ProductManagePageState extends State<ProductsManagePage> {
           categoryMap = data.map(
             (key, value) => MapEntry(value['title'].toString(), key.toString()),
           );
+        //   if (!categoryMap.keys.contains('All')) {
+        //   categoryMap['All'] = 'all'; // Ensure 'All' is available
+        // }
         });
       }
     } else {
       print("No categories found.");
+    //   setState(() {
+    //   categoryMap = {'All': 'all'}; // Provide fallback category
+    // });
     }
   }
 
@@ -62,7 +68,7 @@ class _ProductManagePageState extends State<ProductsManagePage> {
           key,
         );
       }).toList();
-      filteredProducts = products;
+      //filteredProducts = products;
     });
   }
 
@@ -126,6 +132,7 @@ class _ProductManagePageState extends State<ProductsManagePage> {
         .set({'totalSell': 0, 'productName': product.name});
     setState(() {
       products.add(product);
+      rebuildFilteredProducts();
     });
   }
 
@@ -162,16 +169,15 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                 DropdownButton<String>(
                   value: selectedCategory,
                   hint: const Text('Select a Category'),
-                  items: categoryMap.keys
-                      .toList()
-                      .map((String category) => DropdownMenuItem(
-                            value: category,
-                            child: Text(category),
-                          ))
-                      .toList(),
+                  items: categoryMap.keys.toSet().map((String category) {
+                        return DropdownMenuItem<String>(
+                          value: category,
+                          child: Text(category),
+                        );
+                      }).toList(),
                   onChanged: (String? category) {
                     setState(() {
-                      selectedCategory = category.toString();
+                      selectedCategory = category ?? 'All';
                       filterProductByCategory(selectedCategory);
                       rebuildFilteredProducts();
                     });
@@ -260,15 +266,16 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                   onAdd: (newProduct) {
                     setState(() {
                       addProduct(newProduct);
+                      //rebuildFilteredProducts();
                     });
                   },
                   newId: newProductKey ?? ''),
             ),
           );
-          if (newProduct != null) {
-            addProduct(newProduct);
-            rebuildFilteredProducts();
-          }
+          // if (newProduct != null) {
+          //   addProduct(newProduct);
+          //   rebuildFilteredProducts();
+          // }
         },
         child: Icon(Icons.add),
       ),

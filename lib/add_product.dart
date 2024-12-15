@@ -8,7 +8,7 @@ class AddProductPage extends StatelessWidget {
   final String newId;
 
   AddProductPage(
-      {required this.categories, required this.onAdd, required this.newId});
+      {super.key, required this.categories, required this.onAdd, required this.newId});
 
   late String name = '';
   late String description = '';
@@ -23,16 +23,16 @@ class AddProductPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Product')),
+      appBar: AppBar(title: const Text('Add Product')),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
             child: Column(
               children: [
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Name'),
+                  decoration: const InputDecoration(labelText: 'Name'),
                   onSaved: (value) => name = value!.trim(),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -42,7 +42,7 @@ class AddProductPage extends StatelessWidget {
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Description'),
+                  decoration: const InputDecoration(labelText: 'Description'),
                   onSaved: (value) => description = value!.trim(),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -52,7 +52,7 @@ class AddProductPage extends StatelessWidget {
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Price'),
+                  decoration: const InputDecoration(labelText: 'Price'),
                   keyboardType: TextInputType.number,
                   onSaved: (value) => price = double.parse(value!.trim()),
                   validator: (value) {
@@ -67,7 +67,7 @@ class AddProductPage extends StatelessWidget {
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Image URL'),
+                  decoration: const InputDecoration(labelText: 'Image URL'),
                   onSaved: (value) => imgURL = value!.trim(),
                   validator: (value) {
                     if (value == null || value.trim().isEmpty) {
@@ -93,7 +93,7 @@ class AddProductPage extends StatelessWidget {
                   onChanged: (value) {
                     category = value!;
                   },
-                  decoration: InputDecoration(labelText: 'Category'),
+                  decoration: const InputDecoration(labelText: 'Category'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please select a valid category';
@@ -102,7 +102,7 @@ class AddProductPage extends StatelessWidget {
                   },
                 ),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Quantity in Stock'),
+                  decoration: const InputDecoration(labelText: 'Quantity in Stock'),
                   keyboardType: TextInputType.number,
                   onSaved: (value) =>
                       quantityInStock = int.parse(value!.trim()),
@@ -117,7 +117,7 @@ class AddProductPage extends StatelessWidget {
                     return null;
                   },
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
@@ -130,7 +130,7 @@ class AddProductPage extends StatelessWidget {
                       Navigator.pop(context);
                     }
                   },
-                  child: Text('Add Product'),
+                  child: const Text('Add Product'),
                 ),
               ],
             ),

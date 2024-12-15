@@ -53,6 +53,9 @@ class Productcard extends StatelessWidget {
                               height: 120,
                               width: 80,
                               fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.image, size: 80);
+                              },
                             )
                           : const Icon(Icons.image, size: 80),
                     ),
@@ -70,7 +73,7 @@ class Productcard extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '\$${productPrice.toStringAsFixed(2)}',
+                            'EGP${productPrice.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.green,

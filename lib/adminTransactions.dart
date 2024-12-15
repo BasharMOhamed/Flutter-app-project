@@ -5,7 +5,7 @@ import 'package:flutter_app/order.dart';
 import 'package:flutter_app/CartItem.dart';
 
 class AdminTransactions extends StatefulWidget {
-  AdminTransactions({super.key});
+  const AdminTransactions({super.key});
 
   @override
   _AdminTransactionsState createState() => _AdminTransactionsState();
@@ -20,19 +20,19 @@ class _AdminTransactionsState extends State<AdminTransactions> {
   void fetchOrders() async {
     final snapshot = await ref.get();
     if (snapshot.exists) {
-      print("you are here bro");
+      //print("you are here bro");
 
       Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
-      print('map: $data');
+     // print('map: $data');
       setState(() {
         orders = data.entries
             .where((entry) => entry.value is Map)
             .map((entry) =>
                 Order.fromMap(Map<String, dynamic>.from(entry.value)))
             .toList();
-        print("Herrrrrrrrrrrrre");
+        //print("Herrrrrrrrrrrrre");
       });
-      print(orders);
+      //print(orders);
       // setState(() {
       //   orders = (snapshot.value as List<dynamic>)
       //       .map((item) => Order.fromMap(Map<String, dynamic>.from(item)))
@@ -52,13 +52,20 @@ class _AdminTransactionsState extends State<AdminTransactions> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Orders & feedback")),
-      body: Column(
+      body: 
+        //  orders.isEmpty
+        //   ? const Center(
+        //       child: Text(
+        //       "No Orders Found",
+        //       style: TextStyle(fontSize: 18),
+        //     ))
+        Column(
         children: [
           Expanded(
             child: ListView.builder(
               itemCount: orders.length ?? 0,
               itemBuilder: (context, index1) {
-                if (orders.isNotEmpty && orders != null) {
+                 if (orders.isNotEmpty) {
                   final order = orders[index1];
                   return Card(
                     elevation: 4,
@@ -69,7 +76,7 @@ class _AdminTransactionsState extends State<AdminTransactions> {
                         children: [
                           Text(
                             "#${index1 + 1}",
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(
                             height: 10,
@@ -83,26 +90,26 @@ class _AdminTransactionsState extends State<AdminTransactions> {
                                   height: 50,
                                   width: 50,
                                   fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                return Icon(Icons.image, size: 80);
+                              },
                                 ),
                               ),
                               title: Text(item.productName),
                               subtitle: Text('x ${item.quantity}'),
                               trailing:
-                                  Text('\$${item.price.toStringAsFixed(2)}'),
+                                  Text('EGP${item.price.toStringAsFixed(2)}'),
                             );
-                          }).toList(),
+                          }),
                           const SizedBox(
                             height: 15,
                           ),
                           Center(
                               child: Text(
-                            "Total: \$${order.totalPrice.toStringAsFixed(2)}",
-                            style: TextStyle(
+                            "Total: EGP${order.totalPrice.toStringAsFixed(2)}",
+                            style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                           )),
-                          const SizedBox(
-                            height: 15,
-                          ),
                           const SizedBox(
                             height: 15,
                           ),
@@ -137,8 +144,9 @@ class _AdminTransactionsState extends State<AdminTransactions> {
                       ),
                     ),
                   );
-                } else {
-                  return Center(child: Text("No Orders found"));
+                 }
+                else {
+                  return const Center(child: Text("No Orders found"));
                 }
               },
             ),
