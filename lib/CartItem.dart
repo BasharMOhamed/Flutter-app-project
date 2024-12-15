@@ -1,19 +1,20 @@
 import 'package:flutter_app/Product.dart';
 
 class CartItem {
-  final String imgURL;
-  final double price;
-  final String productName;
-  final int qty;
-  CartItem(this.productName, this.price, this.imgURL, this.qty);
-  factory CartItem.fromMap(Map<String, dynamic> map) {
+  int quantity;
+
+  String productName;
+  double price;
+  String imgURL;
+  String id;
+  CartItem(this.imgURL, this.price, this.productName, this.quantity, this.id);
+
+  factory CartItem.fromMap(Map<String, dynamic> map, {required String id}) {
     return CartItem(
-      map['productName'] as String,
-      (map['price'] is int)
-          ? (map['price'] as int).toDouble()
-          : map['price'] ?? 0.0,
-      map['imgURL'] as String,
-      map['quantity'] as int,
-    );
+        map['imageURL']?.toString() ?? '',
+        (map['price'] is num) ? map['price'].toDouble() : 0.0,
+        map['productName']?.toString() ?? '',
+        (map['quantity'] is int) ? map['quantity'] : 0,
+        id);
   }
 }

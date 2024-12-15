@@ -9,12 +9,13 @@ class Order {
 
   factory Order.fromMap(Map<String, dynamic> map) {
     return Order(
-      (map['items'] as List<dynamic>)
-          .map((item) => CartItem.fromMap(Map<String, dynamic>.from(item)))
+      (map['items'] as List<dynamic>? ?? [])
+          .map((item) =>
+              CartItem.fromMap(Map<String, dynamic>.from(item), id: ''))
           .toList(),
-      map['feedback'] ?? '',
-      map['rating']?.toDouble() ?? 0.0,
-      map['totalPrice']?.toDouble() ?? 0.0,
+      map['feedback']?.toString() ?? 'No feedback',
+      (map['rating'] is num) ? map['rating'].toDouble() : 0.0,
+      (map['totalPrice'] is num) ? map['totalPrice'].toDouble() : 0.0,
     );
   }
 }

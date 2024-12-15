@@ -1,4 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app/adminChart.dart';
+import 'package:flutter_app/adminTransactions.dart';
+import 'package:flutter_app/categories.dart';
+import 'package:flutter_app/product_management.dart';
+import 'package:flutter_app/productsPage.dart';
+import 'package:flutter_app/shoppingCart/product-list.dart';
 
 class NavBar extends StatefulWidget {
   final bool isAdmin;
@@ -12,16 +18,13 @@ class _NavBarState extends State<NavBar> {
   int _selectedIndex = 0;
 
   final List<Widget> _adminPages = [
-    ProductsPage(),
+    ProductsManagePage(),
     CategoriesPage(),
-    OrdersPage(),
-    DashboardPage(),
+    AdminTransactions(),
+    AdminChart(),
   ];
 
-  final List<Widget> _userPages = [
-    ShopPage(),
-    ShoppingCartPage(),
-  ];
+  final List<Widget> _userPages = [ProductsPage(), productList()];
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +48,12 @@ class _NavBarState extends State<NavBar> {
     final List<Widget> pages = widget.isAdmin ? _adminPages : _userPages;
 
     return Scaffold(
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: pages,
+      body: Navigator(
+        key:
+            ValueKey(_selectedIndex), // Unique key ensures each page is rebuilt
+        onGenerateRoute: (_) => MaterialPageRoute(
+          builder: (_) => pages[_selectedIndex],
+        ),
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: navItems,
@@ -63,33 +69,33 @@ class _NavBarState extends State<NavBar> {
   }
 }
 
-class ProductsPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Products Page'));
-}
+// class ProductsPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) => Center(child: Text('Products Page'));
+// }
 
-class CategoriesPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Categories Page'));
-}
+// class CategoriesPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) => Center(child: Text('Categories Page'));
+// }
 
-class OrdersPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Orders Page'));
-}
+// class OrdersPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) => Center(child: Text('Orders Page'));
+// }
 
-class DashboardPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Dashboard Page'));
-}
+// class DashboardPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) => Center(child: Text('Dashboard Page'));
+// }
 
-class ShopPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) => Center(child: Text('Shop Page'));
-}
+// class ShopPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) => Center(child: Text('Shop Page'));
+// }
 
-class ShoppingCartPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) =>
-      Center(child: Text('Shopping Cart Page'));
-}
+// class ShoppingCartPage extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) =>
+//       Center(child: Text('Shopping Cart Page'));
+// }

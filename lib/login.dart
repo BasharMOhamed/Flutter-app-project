@@ -2,6 +2,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/adminChart.dart';
+import 'package:flutter_app/navBar.dart';
 import 'package:flutter_app/productsPage.dart';
 import 'signUp.dart';
 import 'forgetpassword.dart';
@@ -41,17 +42,23 @@ class _LoginPageState extends State<LoginPage> {
 
         final userData = snapshot.value as Map<dynamic, dynamic>;
 
-        if (userData['isadmin'] == false) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => ProductsPage()),
-          );
-        } else if (userData['isadmin'] == true) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => AdminChart()),
-          );
-        }
+        // if (userData['isadmin'] == false) {
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => ProductsPage()),
+        //   );
+        // } else if (userData['isadmin'] == true) {
+        //   Navigator.pushReplacement(
+        //     context,
+        //     MaterialPageRoute(builder: (context) => AdminChart()),
+        //   );
+        // }
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+              builder: (context) => NavBar(isAdmin: userData['isadmin'])),
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login Successful!')),

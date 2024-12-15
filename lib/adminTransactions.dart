@@ -20,11 +20,24 @@ class _AdminTransactionsState extends State<AdminTransactions> {
   void fetchOrders() async {
     final snapshot = await ref.get();
     if (snapshot.exists) {
+      print("you are here bro");
+
+      Map<dynamic, dynamic> data = snapshot.value as Map<dynamic, dynamic>;
+      print('map: $data');
       setState(() {
-        orders = (snapshot.value as List<dynamic>)
-            .map((item) => Order.fromMap(Map<String, dynamic>.from(item)))
+        orders = data.entries
+            .where((entry) => entry.value is Map)
+            .map((entry) =>
+                Order.fromMap(Map<String, dynamic>.from(entry.value)))
             .toList();
+        print("Herrrrrrrrrrrrre");
       });
+      print(orders);
+      // setState(() {
+      //   orders = (snapshot.value as List<dynamic>)
+      //       .map((item) => Order.fromMap(Map<String, dynamic>.from(item)))
+      //       .toList();
+      // });
     }
   }
 
@@ -32,6 +45,7 @@ class _AdminTransactionsState extends State<AdminTransactions> {
   void initState() {
     super.initState();
     fetchOrders();
+    // print(orders);
   }
 
   @override
@@ -72,7 +86,7 @@ class _AdminTransactionsState extends State<AdminTransactions> {
                                 ),
                               ),
                               title: Text(item.productName),
-                              subtitle: Text('x ${item.qty}'),
+                              subtitle: Text('x ${item.quantity}'),
                               trailing:
                                   Text('\$${item.price.toStringAsFixed(2)}'),
                             );

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/checkout-page.dart';
 import '../Product.dart';
 
 class productList extends StatefulWidget {
@@ -159,19 +160,22 @@ class _productListState extends State<productList> {
                                   width: 80,
                                   fit: BoxFit.fill,
                                 )),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 20),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(cartItems[index].productName),
+                                Text(cartItems[index].productName,
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                Text('\$${cartItems[index].price.toString()}'),
+                                Text('\$${cartItems[index].price.toString()}',
+                                    style: TextStyle(color: Colors.green)),
                               ],
                             ),
                             const SizedBox(
-                              width: 20,
+                              width: 25,
                             ),
                             Row(
                               children: [
@@ -194,7 +198,13 @@ class _productListState extends State<productList> {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                print("navigate to checkout Page");
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CheckoutPage()),
+                );
+              },
               child: Text(
                   'Proceed to Checkout - \$${totalPrice.toStringAsFixed(2)}'),
             ),

@@ -6,6 +6,7 @@ import 'package:flutter_app/adminChart.dart';
 import 'package:flutter_app/productDetails.dart';
 
 import 'package:flutter_app/adminTransactions.dart';
+import 'package:flutter_app/checkout-page.dart';
 import 'package:flutter_app/firebase_options.dart';
 import 'package:flutter_app/shoppingCart/product-list.dart';
 import 'signUp.dart';
@@ -30,7 +31,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Firebase Sign Up',
-      home: AdminTransactions(),
+      home: LoginPage(),
     );
   }
 }
