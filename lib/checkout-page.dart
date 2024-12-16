@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/navBar.dart';
-import 'package:flutter_app/productsPage.dart';
 import 'AddNewAddressPage.dart';
 import 'CartItem.dart';
 
@@ -90,6 +89,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       "totalPrice": orderTotal,
       "feedback": Feedback,
       "rating": double.tryParse(rating),
+      "orderDate": DateTime.now().toIso8601String(),
       //"address": _address,
       //"phone": _phone,
       "items": cartItems

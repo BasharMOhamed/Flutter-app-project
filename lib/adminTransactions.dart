@@ -1,8 +1,6 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app/Product.dart';
 import 'package:flutter_app/order.dart';
-import 'package:flutter_app/CartItem.dart';
 
 class AdminTransactions extends StatefulWidget {
   const AdminTransactions({super.key});
@@ -79,6 +77,20 @@ class _AdminTransactionsState extends State<AdminTransactions> {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                          children: [
+                            const Text(
+                              "Order Date: ",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.w500),
+                            ),
+                            const SizedBox(width: 15),
+                            Text(order.orderDate), 
+                          ],
+                        ),
+                        const SizedBox(
                             height: 10,
                           ),
                           ...order.items.map((item) {
