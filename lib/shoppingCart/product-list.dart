@@ -116,7 +116,7 @@ class _productListState extends State<productList> {
       DatabaseReference cartRef =
           FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
       DataSnapshot snapshot = await cartRef.get();
-      final data = snapshot.value as Map<Object?, Object?>;
+      final data = snapshot.value as Map<Object?, Object?> ?? {};
 
       setState(() {
         cartItems = data.entries.map((entry) {
@@ -160,8 +160,8 @@ class _productListState extends State<productList> {
                                   width: 80,
                                   fit: BoxFit.fill,
                                   errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.image, size: 80);
-                              },
+                                    return Icon(Icons.image, size: 80);
+                                  },
                                 )),
                             const SizedBox(width: 20),
                             Column(

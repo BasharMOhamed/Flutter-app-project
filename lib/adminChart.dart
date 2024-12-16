@@ -22,18 +22,46 @@ class _AdminChartState extends State<AdminChart> {
     fetchData();
   }
 
+  // Future<void> fetchData() async {
+  //   DatabaseReference databaseReference =
+  //       FirebaseDatabase.instance.ref("totalSell");
+  //   DatabaseEvent dataSnapShot = await databaseReference.once();
+  //   Map<dynamic, dynamic> values =
+  //       dataSnapShot.snapshot.value as Map<dynamic, dynamic>;
+  //   setState(() {
+  //     salesData = values.values
+  //         .map((e) => double.parse(e['totalSell'].toString()))
+  //         .toList();
+  //     labels = values.values.map((e) => e['productName'].toString()).toList();
+  //   });
+  // }
+
   Future<void> fetchData() async {
     DatabaseReference databaseReference =
         FirebaseDatabase.instance.ref("totalSell");
     DatabaseEvent dataSnapShot = await databaseReference.once();
+
     Map<dynamic, dynamic> values =
         dataSnapShot.snapshot.value as Map<dynamic, dynamic>;
 
+    // Combine sales data and labels into a list of MapEntries for sorting
+    List<MapEntry<double, String>> combined = values.values
+        .map((e) => MapEntry(
+              double.parse(e['totalSell'].toString()),
+              e['productName'].toString(),
+            ))
+        .toList();
+
+    // Sort by sales data in descending order
+    combined.sort((a, b) => b.key.compareTo(a.key));
+
+    // Take the top 5 entries
+    combined = combined.take(5).toList();
+
+    // Separate back into salesData and labels
     setState(() {
-      salesData = values.values
-          .map((e) => double.parse(e['totalSell'].toString()))
-          .toList();
-      labels = values.values.map((e) => e['productName'].toString()).toList();
+      salesData = combined.map((e) => e.key).toList();
+      labels = combined.map((e) => e.value).toList();
     });
   }
 
@@ -41,7 +69,7 @@ class _AdminChartState extends State<AdminChart> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text("Best Sold Products"),
+          title: const Text("Top 5 BestSeller Products"),
         ),
         body: SizedBox.expand(
             child: Center(
@@ -50,7 +78,7 @@ class _AdminChartState extends State<AdminChart> {
           child: FlutterSalesGraph(
             salesData: salesData,
             labels: labels,
-            maxBarHeight: 250.0,
+            maxBarHeight: 300.0,
             barWidth: 50.0,
             colors: const [Colors.blue, Colors.green, Colors.red],
             dateLineHeight: 25,

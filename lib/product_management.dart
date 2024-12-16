@@ -37,16 +37,16 @@ class _ProductManagePageState extends State<ProductsManagePage> {
           categoryMap = data.map(
             (key, value) => MapEntry(value['title'].toString(), key.toString()),
           );
-        //   if (!categoryMap.keys.contains('All')) {
-        //   categoryMap['All'] = 'all'; // Ensure 'All' is available
-        // }
+          //   if (!categoryMap.keys.contains('All')) {
+          //   categoryMap['All'] = 'all'; // Ensure 'All' is available
+          // }
         });
       }
     } else {
       print("No categories found.");
-    //   setState(() {
-    //   categoryMap = {'All': 'all'}; // Provide fallback category
-    // });
+      //   setState(() {
+      //   categoryMap = {'All': 'all'}; // Provide fallback category
+      // });
     }
   }
 
@@ -170,11 +170,11 @@ class _ProductManagePageState extends State<ProductsManagePage> {
                   value: selectedCategory,
                   hint: const Text('Select a Category'),
                   items: categoryMap.keys.toSet().map((String category) {
-                        return DropdownMenuItem<String>(
-                          value: category,
-                          child: Text(category),
-                        );
-                      }).toList(),
+                    return DropdownMenuItem<String>(
+                      value: category,
+                      child: Text(category),
+                    );
+                  }).toList(),
                   onChanged: (String? category) {
                     setState(() {
                       selectedCategory = category ?? 'All';
@@ -191,10 +191,13 @@ class _ProductManagePageState extends State<ProductsManagePage> {
               itemCount: filteredProducts.length,
               itemBuilder: (context, index) {
                 final product = filteredProducts[index];
-                final originalIndex = products.indexWhere((p) => p == product);
+                final originalIndex = products.indexWhere((p) =>
+                    (p.name == product.name && p.price == product.price));
                 return GestureDetector(
                   onTap: () {
+                    print(originalIndex);
                     if (originalIndex != -1) {
+                      print("Taped");
                       Navigator.push(
                         context,
                         MaterialPageRoute(

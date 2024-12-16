@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_app/adminChart.dart';
 import 'package:flutter_app/navBar.dart';
 import 'package:flutter_app/productsPage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'signUp.dart';
 import 'forgetpassword.dart';
 
@@ -17,8 +18,45 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
+  bool _rememberMe = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserCredentials().then((_) {
+      if (_rememberMe &&
+          _emailController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty) {
+        _login();
+      }
+    });
+  }
+
+  // Load saved credentials
+  Future<void> _loadUserCredentials() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _emailController.text = prefs.getString('email') ?? '';
+      _passwordController.text = prefs.getString('password') ?? '';
+      _rememberMe = prefs.getBool('rememberMe') ?? false;
+    });
+  }
+
+  // Save credentials if "Remember Me" is checked
+  Future<void> _saveUserCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (_rememberMe) {
+      await prefs.setString('email', _emailController.text);
+      await prefs.setString('password', _passwordController.text);
+      await prefs.setBool('rememberMe', true);
+    } else {
+      await prefs.remove('email');
+      await prefs.remove('password');
+      await prefs.setBool('rememberMe', false);
+    }
+  }
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -35,24 +73,13 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           _isLoading = false;
         });
+        _saveUserCredentials();
         DatabaseReference userRef =
             FirebaseDatabase.instance.ref('users/${userCredential.user?.uid}');
 
         DataSnapshot snapshot = await userRef.get();
 
         final userData = snapshot.value as Map<dynamic, dynamic>;
-
-        // if (userData['isadmin'] == false) {
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => ProductsPage()),
-        //   );
-        // } else if (userData['isadmin'] == true) {
-        //   Navigator.pushReplacement(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => AdminChart()),
-        //   );
-        // }
 
         Navigator.pushReplacement(
           context,
@@ -63,9 +90,6 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Login Successful!')),
         );
-
-        // Navigator.pushReplacement(
-        //     context, MaterialPageRoute(builder: (context) => Product()));
       } on FirebaseAuthException catch (e) {
         setState(() {
           _isLoading = false;
@@ -144,6 +168,20 @@ class _LoginPageState extends State<LoginPage> {
                       return null;
                     },
                   ),
+                  SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _rememberMe,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _rememberMe = value!;
+                          });
+                        },
+                      ),
+                      Text("Remember Me"),
+                    ],
+                  ),
                   SizedBox(height: 20),
                   _isLoading
                       ? Center(child: CircularProgressIndicator())
@@ -171,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                           MaterialPageRoute(
                               builder: (context) => Forgetpassword()));
                     },
-                    child: Text("Forget password"),
+                    child: Text("Forget password?"),
                   ),
                 ],
               ),
