@@ -15,7 +15,7 @@ class _productListState extends State<productList> {
   final FirebaseDatabase data = FirebaseDatabase.instance;
 
   double totalPrice = 0;
-
+  bool isButtonEnabled = false;
   List<CartItem> cartItems = [];
 
   //
@@ -99,6 +99,11 @@ class _productListState extends State<productList> {
       total += item.price * item.quantity;
     }
     setState(() {
+      if (total > 0) {
+        isButtonEnabled = true;
+      } else {
+        isButtonEnabled = false;
+      }
       totalPrice = total;
     });
   }
@@ -116,21 +121,23 @@ class _productListState extends State<productList> {
       DatabaseReference cartRef =
           FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
       DataSnapshot snapshot = await cartRef.get();
-      final data = snapshot.value as Map<Object?, Object?> ?? {};
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<Object?, Object?> ?? {};
 
-      setState(() {
-        cartItems = data.entries.map((entry) {
-          final key = entry.key.toString();
-          final value = Map<String, dynamic>.from(entry.value as Map);
-          return CartItem(
-            value['imageURL'],
-            value['price'].toDouble(),
-            value['productName'],
-            value['quantity'],
-            key,
-          );
-        }).toList();
-      });
+        setState(() {
+          cartItems = data.entries.map((entry) {
+            final key = entry.key.toString();
+            final value = Map<String, dynamic>.from(entry.value as Map);
+            return CartItem(
+              value['imageURL'],
+              value['price'].toDouble(),
+              value['productName'],
+              value['quantity'],
+              key,
+            );
+          }).toList();
+        });
+      }
     }
     updateTotal();
   }
@@ -173,41 +180,48 @@ class _productListState extends State<productList> {
                                 const SizedBox(
                                   height: 15,
                                 ),
-                                Text('EGP${cartItems[index].price.toString()}',
-                                    style: TextStyle(color: Colors.green)),
+                                Row(children: [
+                                  Text(
+                                      'EGP${cartItems[index].price.toString()}',
+                                      style: TextStyle(color: Colors.green)),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Row(
+                                    children: [
+                                      IconButton(
+                                          icon: Icon(Icons.add),
+                                          onPressed: () => {
+                                                addToCart(cartItems[index].id),
+                                              }),
+                                      Text(
+                                          cartItems[index].quantity.toString()),
+                                      IconButton(
+                                          icon: Icon(Icons.remove),
+                                          onPressed: () => {
+                                                removeFromCart(
+                                                    cartItems[index].id),
+                                              }),
+                                    ],
+                                  )
+                                ])
                               ],
                             ),
-                            const SizedBox(
-                              width: 25,
-                            ),
-                            Row(
-                              children: [
-                                IconButton(
-                                    icon: Icon(Icons.add),
-                                    onPressed: () => {
-                                          addToCart(cartItems[index].id),
-                                        }),
-                                Text(cartItems[index].quantity.toString()),
-                                IconButton(
-                                    icon: Icon(Icons.remove),
-                                    onPressed: () => {
-                                          removeFromCart(cartItems[index].id),
-                                        }),
-                              ],
-                            )
                           ]),
                         ));
                   })),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
-              onPressed: () {
-                print("navigate to checkout Page");
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CheckoutPage()),
-                );
-              },
+              onPressed: isButtonEnabled
+                  ? () {
+                      print("navigate to checkout Page");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => CheckoutPage()),
+                      );
+                    }
+                  : null,
               child: Text(
                   'Proceed to Checkout - EGP${totalPrice.toStringAsFixed(2)}'),
             ),

@@ -51,20 +51,22 @@ class _CheckoutPageState extends State<CheckoutPage> {
       DatabaseReference cartRef =
           FirebaseDatabase.instance.ref('users/$userId/shoppingCart');
       DataSnapshot snapshot = await cartRef.get();
-      final data = snapshot.value as Map<Object?, Object?>;
-      setState(() {
-        cartItems = data.entries.map((entry) {
-          final key = entry.key.toString();
-          final value = Map<String, dynamic>.from(entry.value as Map);
-          return CartItem(
-            value['imageURL'],
-            value['price'].toDouble(),
-            value['productName'],
-            value['quantity'],
-            key,
-          );
-        }).toList();
-      });
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<Object?, Object?>;
+        setState(() {
+          cartItems = data.entries.map((entry) {
+            final key = entry.key.toString();
+            final value = Map<String, dynamic>.from(entry.value as Map);
+            return CartItem(
+              value['imageURL'],
+              value['price'].toDouble(),
+              value['productName'],
+              value['quantity'],
+              key,
+            );
+          }).toList();
+        });
+      }
     }
   }
 
@@ -76,8 +78,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void saveOrderDetails() async {
-    DatabaseReference ordersRef =
-        FirebaseDatabase.instance.ref('Orders');
+    DatabaseReference ordersRef = FirebaseDatabase.instance.ref('Orders');
 
     //String ratingText = ratingController.text;
     //double? rating = double.tryParse(ratingText);
@@ -195,8 +196,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   width: 80,
                                   fit: BoxFit.contain,
                                   errorBuilder: (context, error, stackTrace) {
-                                return Icon(Icons.image, size: 80);
-                              },
+                                    return Icon(Icons.image, size: 80);
+                                  },
                                 ),
                               ),
                               const SizedBox(width: 15),
@@ -365,136 +366,136 @@ class _CheckoutPageState extends State<CheckoutPage> {
             borderRadius: BorderRadius.circular(15),
           ),
           child: Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              gradient: LinearGradient(
-                colors: [Colors.white, Colors.blue.shade50],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  colors: [Colors.white, Colors.blue.shade50],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
-            ),
-            child: Form(  
-            key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.check_circle,
-                    color: Colors.green,
-                    size: 60,
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    "Payment Successful!",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 60,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: feedbackController,
-                    decoration: InputDecoration(
-                      labelText: "Feedback",
-                      hintText: "Enter your feedback",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    SizedBox(height: 16),
+                    Text(
+                      "Payment Successful!",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
+                      textAlign: TextAlign.center,
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a Feedback';
-                      }
-                      return null;
-                    },
-                  ),
-
-                  SizedBox(height: 16),
-                  TextFormField(
-                    controller: ratingController,
-                    decoration: InputDecoration(
-                      labelText: "Rating From (1-5)",
-                      hintText: "Enter a number",
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: feedbackController,
+                      decoration: InputDecoration(
+                        labelText: "Feedback",
+                        hintText: "Enter your feedback",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return 'Please enter a Rating';
-                      }
-                      final rating = double.tryParse(value.trim());
-                      if (rating == null || rating < 1 || rating > 5) {
-                      return 'Please enter number between 1 and 5';
-                    }
-                      return null;
-                    },
-                    
-                    onChanged: (value) {
-                      // Enforce min and max values
-                      if (value.isNotEmpty) {
-                        final number = int.tryParse(value);
-                        if (number != null) {
-                          if (number < 1) {
-                            ratingController.text = '1';
-                            // ratingController.selection =
-                            //     TextSelection.fromPosition(
-                            //   TextPosition(offset: ratingController.text.length),
-                            // );
-                          } else if (number > 5) {
-                            ratingController.text = '5';
-                            // ratingController.selection =
-                            //     TextSelection.fromPosition(
-                            //   TextPosition(offset: ratingController.text.length),
-                            // );
-                          }
-                          ratingController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: ratingController.text.length),
-                        );
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a Feedback';
                         }
-                      }
-                    },
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 16),
+                    TextFormField(
+                      controller: ratingController,
+                      decoration: InputDecoration(
+                        labelText: "Rating From (1-5)",
+                        hintText: "Enter a number",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      keyboardType: TextInputType.number,
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Please enter a Rating';
+                        }
+                        final rating = double.tryParse(value.trim());
+                        if (rating == null || rating < 1 || rating > 5) {
+                          return 'Please enter number between 1 and 5';
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        // Enforce min and max values
+                        if (value.isNotEmpty) {
+                          final number = int.tryParse(value);
+                          if (number != null) {
+                            if (number < 1) {
+                              ratingController.text = '1';
+                              // ratingController.selection =
+                              //     TextSelection.fromPosition(
+                              //   TextPosition(offset: ratingController.text.length),
+                              // );
+                            } else if (number > 5) {
+                              ratingController.text = '5';
+                              // ratingController.selection =
+                              //     TextSelection.fromPosition(
+                              //   TextPosition(offset: ratingController.text.length),
+                              // );
+                            }
+                            ratingController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                  offset: ratingController.text.length),
+                            );
+                          }
+                        }
+                      },
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        rating = ratingController.text;
-                        Feedback = feedbackController.text;
-                        saveOrderDetails();
-                        updateProductTotalSell(cartItems);
-                        removeShoppingCart();
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => NavBar(isAdmin: false)),
-                        );
-                      }
-                    },
-                    child: Text(
-                      "Send",
-                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    SizedBox(height: 16),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      ),
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          rating = ratingController.text;
+                          Feedback = feedbackController.text;
+                          saveOrderDetails();
+                          updateProductTotalSell(cartItems);
+                          removeShoppingCart();
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => NavBar(isAdmin: false)),
+                          );
+                        }
+                      },
+                      child: Text(
+                        "Send",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-          )
-          ),
+                  ],
+                ),
+              )),
         );
       },
     );
